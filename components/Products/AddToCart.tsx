@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 export default function AddToCart({ item }: { item: OrderItem }) {
   const router = useRouter();
-  const { items, increase } = useCartService();
+  const { items, increase, decrease } = useCartService();
   const [existingItem, setExistingItem] = useState<OrderItem | undefined>();
 
   useEffect(() => {
@@ -20,7 +20,11 @@ export default function AddToCart({ item }: { item: OrderItem }) {
 
   return existingItem ? (
     <div>
-      <button className='btn' type='button'>
+      <button
+        className='btn'
+        type='button'
+        onClick={() => decrease(existingItem)}
+      >
         -
       </button>
       <span className='px-2'>{existingItem.qty}</span>
