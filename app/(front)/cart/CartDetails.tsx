@@ -1,6 +1,6 @@
 "use client";
 
-import useCartService from "@/lib/lib/hooks/useCartStore";;
+import useCartService from "@/lib/lib/hooks/useCartStore";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,7 +8,8 @@ import { useEffect, useState } from "react";
 
 export default function CartDetails() {
   const router = useRouter();
-  const { items, itemsPrice, decrease, increase, deleteItem } = useCartService();
+  const { items, itemsPrice, decrease, increase, deleteItem } =
+    useCartService();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -16,6 +17,17 @@ export default function CartDetails() {
   }, []);
 
   if (!mounted) return <></>;
+
+  const handleIncrease = (item: any) => {
+    if (item.qty < item.countInStock) {
+      increase(item);
+    } else {
+      // Optionally, you can display a message or notification to inform the user
+      console.log(`Cannot increase quantity beyond ${item.countInStock}`);
+    }
+  };
+
+  const disableCheckout = items.some((item) => item.qty > item.countInStock);
 
   return (
     <>
@@ -65,7 +77,8 @@ export default function CartDetails() {
                       <button
                         className='btn'
                         type='button'
-                        onClick={() => increase(item)}
+                        onClick={() => handleIncrease(item)}
+                        disabled={item.qty === item.countInStock}
                       >
                         +
                       </button>
@@ -76,7 +89,13 @@ export default function CartDetails() {
                       >
                         remove
                       </button>
-
+                      {item.qty > item.countInStock && (
+                        <div className='mt-3'>
+                          Please decrease your quantity of this item. Only{" "}
+                          <strong>{item.countInStock} </strong>
+                          left in stock
+                        </div>
+                      )}
                     </td>
                     <td>${item.price}</td>
                   </tr>
@@ -98,6 +117,7 @@ export default function CartDetails() {
                     <button
                       onClick={() => router.push("/shipping")}
                       className='btn btn-primary w-full'
+                      disabled={disableCheckout}
                     >
                       Proceed to Checkout
                     </button>

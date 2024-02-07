@@ -13,6 +13,7 @@ export default function ProductDetails({
     return <div>Product Not Found</div>;
   }
 
+
   return (
     <>
       <div className='my-2'>
@@ -58,7 +59,10 @@ export default function ProductDetails({
             <div className='mb-2 flex justify-between'>
               <div>Status</div>
               <div>
-                ${product.countInStock > 0 ? "In Stock" : "Unavailable"}
+                {product.countInStock > 0
+                  ? product.countInStock + " In Stock"
+                  : "Unavailable"}
+                {/* {product.countInStock} */}
               </div>
             </div>
           </div>

@@ -9,29 +9,33 @@ export default function AddToCart({ item }: { item: OrderItem }) {
   const router = useRouter();
   const { items, increase, decrease } = useCartService();
   const existItem = items.find((x) => x.slug === item.slug);
-  const [quantity, setQuantity] = useState(1); // Set initial quantity to 1
+  const [quantity, setQuantity] = useState(1);
 
   const addToCartHandler = () => {
-    increase(item, quantity);
-    setQuantity(1);
+    const maxQuantity = Math.min(quantity, item.countInStock); 
+    increase(item, maxQuantity);
+    // setQuantity(1); // Reset quantity to 1 after adding to cart
   };
 
   const removeFromCartHandler = () => {
-    if (existItem && quantity > 1) {
-      decrease(existItem);
-      setQuantity(quantity - 1);
-    } else if (existItem && quantity === 1) {
-      decrease(existItem);
-      setQuantity(1);
+    if (existItem) {
+      if (quantity > 1) {
+        decrease(existItem);
+        setQuantity(quantity - 1);
+      } else {
+        decrease(existItem);
+      }
     }
   };
+
 
   return (
     <div>
       <button
         className='btn'
         type='button'
-        onClick={removeFromCartHandler}
+        // onClick={removeFromCartHandler}
+        onClick={() => setQuantity(Math.min(quantity - 1, item.countInStock))}
         disabled={quantity <= 1}
       >
         -
@@ -40,7 +44,7 @@ export default function AddToCart({ item }: { item: OrderItem }) {
       <button
         className='btn'
         type='button'
-        onClick={() => setQuantity(quantity + 1)}
+        onClick={() => setQuantity(Math.min(quantity + 1, item.countInStock))}
       >
         +
       </button>
@@ -48,6 +52,7 @@ export default function AddToCart({ item }: { item: OrderItem }) {
         className='btn btn-primary w-full'
         type='button'
         onClick={addToCartHandler}
+        disabled={quantity > item.countInStock} // Disable button if quantity exceeds countInStock
       >
         Add to cart
       </button>
