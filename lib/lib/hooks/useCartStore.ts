@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { round2 } from "../utils";
-// import { OrderItem, ShippingAddress } from "../models/OrderModel";
-import { OrderItem } from "../models/OrderModel";
+import { OrderItem, ShippingAddress } from "../models/OrderModel";
 import { persist } from "zustand/middleware";
 
 type Cart = {
@@ -12,7 +11,7 @@ type Cart = {
   totalPrice: number;
 
   paymentMethod: string;
-  // shippingAddress: ShippingAddress;
+  shippingAddress: ShippingAddress;
 };
 const initialState: Cart = {
   items: [],
@@ -21,13 +20,13 @@ const initialState: Cart = {
   shippingPrice: 0,
   totalPrice: 0,
   paymentMethod: "PayPal",
-  // shippingAddress: {
-  //   fullName: "",
-  //   address: "",
-  //   city: "",
-  //   postalCode: "",
-  //   country: "",
-  // },
+  shippingAddress: {
+    fullName: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    country: "",
+  },
 };
 
 export const cartStore = create<Cart>()(
@@ -44,7 +43,7 @@ export default function useCartService() {
     shippingPrice,
     totalPrice,
     paymentMethod,
-    // shippingAddress,
+    shippingAddress,
   } = cartStore();
   return {
     items,
@@ -53,7 +52,7 @@ export default function useCartService() {
     shippingPrice,
     totalPrice,
     paymentMethod,
-    // shippingAddress,
+    shippingAddress,
     increase: (item: OrderItem, quantity: number = 1) => {
       const exist = items.find((x) => x.slug === item.slug);
       const updatedCartItems = exist
@@ -79,7 +78,6 @@ export default function useCartService() {
         exist.qty === 1
           ? items.filter((x: OrderItem) => x.slug !== item.slug)
           : items.map((x) =>
-              // item.slug ? { ...exist, qty: exist.qty - 1 } : x
               x.slug === item.slug ? { ...exist, qty: exist.qty - 1 } : x
             );
       const { itemsPrice, shippingPrice, taxPrice, totalPrice } =
@@ -104,22 +102,22 @@ export default function useCartService() {
         totalPrice,
       });
     },
-    // saveShippingAddrress: (shippingAddress: ShippingAddress) => {
-    //   cartStore.setState({
-    //     shippingAddress,
-    //   });
-    // },
-    // savePaymentMethod: (paymentMethod: string) => {
-    //   cartStore.setState({
-    //     paymentMethod,
-    //   });
-    // },
-    // clear: () => {
-    //   cartStore.setState({
-    //     items: [],
-    //   });
-    // },
-    // init: () => cartStore.setState(initialState),
+    saveShippingAddrress: (shippingAddress: ShippingAddress) => {
+      cartStore.setState({
+        shippingAddress,
+      });
+    },
+    savePaymentMethod: (paymentMethod: string) => {
+      cartStore.setState({
+        paymentMethod,
+      });
+    },
+    clear: () => {
+      cartStore.setState({
+        items: [],
+      });
+    },
+    init: () => cartStore.setState(initialState),
   };
 }
 
