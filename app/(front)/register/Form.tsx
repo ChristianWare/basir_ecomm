@@ -64,7 +64,7 @@ const Form = () => {
     } catch (err: any) {
       const error =
         err.message && err.message.indexOf("E11000") === 0
-          ? "Email is duplicate"
+          ? "Email is invalid or already taken"
           : err.message;
       toast.error(error || "error");
     }
