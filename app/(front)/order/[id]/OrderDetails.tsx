@@ -192,7 +192,6 @@ export default function OrderDetails({
                     </PayPalScriptProvider>
                   </li>
                 )}
-                {/* / */}
               </ul>
             </div>
           </div>
