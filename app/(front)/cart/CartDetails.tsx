@@ -1,19 +1,59 @@
 "use client";
 
+import { auth } from "@/lib/lib/auth";
+import dbConnect from "@/lib/lib/dbConnect";
 import useCartService from "@/lib/lib/hooks/useCartStore";
+import CartModel from "@/lib/lib/models/cartModel";
+import { Types } from "mongoose";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
-export default function CartDetails() {
+interface CartItemsProps {
+  cartId: string;
+}
+
+const fetchCartId = async () => {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return null;
+    }
+
+    await dbConnect();
+    const [cart] = await CartModel.aggregate([
+      { $match: { userId: new Types.ObjectId(session.user.id) } },
+      { $project: { id: { $toString: "$_id" } } },
+    ]);
+
+    return cart?.id || null;
+  } catch (error) {
+    console.error("Error fetching cart ID:", error);
+    return null;
+  }
+};
+
+const CartDetails: React.FC<CartItemsProps> = ({ cartId }) => {
   const router = useRouter();
   const { items, itemsPrice, decrease, increase, deleteItem } =
     useCartService();
 
   const [mounted, setMounted] = useState(false);
+  const [busy, setBusy] = useState(false);
+
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const fetchCartIdAndSetState = async () => {
+      const id = await fetchCartId();
+      setCartId(id);
+    };
+
+    fetchCartIdAndSetState();
   }, []);
 
   if (!mounted) return <></>;
@@ -22,12 +62,28 @@ export default function CartDetails() {
     if (item.qty < item.countInStock) {
       increase(item);
     } else {
-      // Optionally, you can display a message or notification to inform the user
       console.log(`Cannot increase quantity beyond ${item.countInStock}`);
     }
   };
 
   const disableCheckout = items.some((item) => item.qty > item.countInStock);
+
+  const handleCheckout = async () => {
+    setBusy(true);
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      body: JSON.stringify({ cartId }),
+    });
+
+    const { error, url } = await res.json();
+
+    if (!res.ok) {
+      toast.error(error);
+    } else {
+      window.location.href = url;
+    }
+    setBusy(false);
+  };
 
   return (
     <>
@@ -122,6 +178,15 @@ export default function CartDetails() {
                       Proceed to Checkout
                     </button>
                   </li>
+                  <li className='mt-5'>
+                    <button
+                      onClick={handleCheckout}
+                      className='btn btn-primary w-full'
+                      disabled={disableCheckout}
+                    >
+                      Stripe
+                    </button>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -130,4 +195,6 @@ export default function CartDetails() {
       )}
     </>
   );
-}
+};
+
+export default CartDetails;
