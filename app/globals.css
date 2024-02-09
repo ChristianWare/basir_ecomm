@@ -35,3 +35,18 @@ body {
 .btn {
   text-transform: none;
 }
+
+/* .paypal-buttons {
+  display: none !important;
+} */
+
+
+/* paypal-buttons-context-iframe paypal-buttons-label-unknown paypal-buttons-layout-vertical */
+
+.paypal-button.paypal-button-color-gold, .paypal-button-row.paypal-button-color-gold .menu-button {
+  background-color: red !important;
+}
+
+.paypal-buttons, .paypal-buttons-context-iframe, .paypal-buttons-label-unknown, .paypal-buttons-layout-vertical {
+  background-color: red !important;
+}
